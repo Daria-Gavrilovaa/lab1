@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;    
+using System.Threading.Tasks;
+using System.Xml;
+
+namespace People
+{
+    public class Actions
+    {
+       private string file = @"D:\ООиП\sem 4\l 1\XML\XML\XMLFile.xml";
+
+        /// <summary>
+        /// Метод чтения файла
+        /// </summary>
+        public List<Person> ReadXML()
+        {
+            List<Person> persons = new List<Person>();
+
+            XmlDocument myXmlDoc = new XmlDocument();
+            myXmlDoc.Load(file);
+
+            XmlElement root = myXmlDoc.DocumentElement;
+
+            var personNodes = root.SelectNodes("person");
+
+            foreach (XmlNode personNode in personNodes)
+            {
+                string name = personNode.SelectSingleNode("name").InnerText;
+                string gender = personNode.SelectSingleNode("gender").InnerText;
+                int age = int.Parse(personNode.SelectSingleNode("age").InnerText);
+                string status = personNode.SelectSingleNode("status").InnerText;
+
+                Person person = new Person(name, gender , age, status);
+                persons.Add (person);
+            }
+            return persons;
+        }
+
+        /// <summary>
+        /// Метод для сохранения изменений
+        /// </summary>
+        public void SaveXML(List<Person> persons)
+        {
+            XmlDocument doc = new XmlDocument();
+            XmlElement root = doc.CreateElement("People");
+            doc.AppendChild(root);
+
+            foreach (var person in persons)
+            {
+                XmlElement personElement = doc.CreateElement("person");
+
+                XmlElement name = doc.CreateElement("name");
+                name.InnerText = person.Name;
+                personElement.AppendChild(name);
+
+                XmlElement gender = doc.CreateElement("gender");
+                gender.InnerText = person.Gender;
+                personElement.AppendChild(gender);
+
+                XmlElement age = doc.CreateElement("age");
+                age.InnerText = person.Age.ToString();
+                personElement.AppendChild(age);
+
+                XmlElement status = doc.CreateElement("status");
+                status.InnerText = person.Status;
+                personElement.AppendChild(status);
+
+                root.AppendChild(personElement);
+            }
+
+            doc.Save(file);
+        }
+    }
+}
