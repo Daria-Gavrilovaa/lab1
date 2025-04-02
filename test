@@ -1,0 +1,154 @@
+using System.Xml;
+using System.Xml.Linq;
+using Xunit;
+
+namespace TestProject
+{
+    public class UnitTest1
+    {
+        private readonly string _testFilePath = @"D:\ООиП\sem 4\l 1\XML\XML\XMLFile.xml";
+
+        [Fact]
+
+        public void LoadXml_ShouldReadExistingFileCorrectly()
+        {
+            if (!File.Exists(_testFilePath))
+            {
+                throw new FileNotFoundException("Файл не найден.", _testFilePath);
+            }
+
+            XDocument document = XDocument.Load(_testFilePath);
+
+            Assert.NotNull(document);
+            Assert.NotNull(document.Root);
+            Assert.Equal("People", document.Root.Name.LocalName);
+
+            var people = document.Root.Elements("person");
+            Assert.NotEmpty(people); 
+            Assert.Equal(34, people.Count());
+
+            var firstPerson = people.First();
+            Assert.NotNull(firstPerson); 
+
+            var nameElement = firstPerson.Element("name");
+            var genderElement = firstPerson.Element("gender");
+            var ageElement = firstPerson.Element("age");
+            var statusElement = firstPerson.Element("status");
+
+            Assert.NotNull(nameElement);
+            Assert.NotNull(genderElement); 
+            Assert.NotNull(ageElement); 
+            Assert.NotNull(statusElement); 
+
+            Assert.Equal("Татьяна", nameElement.Value);
+            Assert.Equal("Женский", genderElement.Value);
+            Assert.Equal("40", ageElement.Value);
+            Assert.Equal("Служащий", statusElement.Value);
+        }
+
+        [Fact]
+        public void EditXml_ShouldUpdatePersonDataInMemory()
+        {
+            XDocument document = XDocument.Load(_testFilePath);
+
+            Assert.NotNull(document.Root);
+
+            var people = document.Root.Elements("person");
+            Assert.NotEmpty(people);
+
+            var firstPerson = people.First();
+            Assert.NotNull(firstPerson); 
+
+            var nameElement = firstPerson.Element("name");
+            var ageElement = firstPerson.Element("age");
+            Assert.NotNull(nameElement); 
+            Assert.NotNull(ageElement); 
+
+            nameElement.Value = "Елена";
+            ageElement.Value = "41";
+
+            Assert.Equal("Елена", nameElement.Value);
+            Assert.Equal("41", ageElement.Value);
+
+            XDocument originalDocument = XDocument.Load(_testFilePath);
+            Assert.NotNull(originalDocument.Root); 
+
+            var originalPeople = originalDocument.Root.Elements("person");
+            Assert.NotEmpty(originalPeople); 
+
+            var originalFirstPerson = originalPeople.First();
+            Assert.NotNull(originalFirstPerson); 
+
+            var originalNameElement = originalFirstPerson.Element("name");
+            Assert.NotNull(originalNameElement); 
+
+            Assert.Equal("Татьяна", originalNameElement.Value);
+        }
+
+        [Fact]
+        public void SaveXml_ShouldCreateNewFileWithoutModifyingOriginal()
+        {
+            string saveDirectory = Path.Combine("TestData");
+            string savePath = Path.Combine(saveDirectory, "updated_people.xml");
+
+            if (!Directory.Exists(saveDirectory))
+            {
+                Directory.CreateDirectory(saveDirectory);
+            }
+
+            XDocument document = XDocument.Load(_testFilePath);
+
+            Assert.NotNull(document.Root);
+
+            var people = document.Root.Elements("person");
+            Assert.NotEmpty(people); 
+
+            var firstPerson = people.First();
+            Assert.NotNull(firstPerson); 
+
+            var nameElement = firstPerson.Element("name");
+            var ageElement = firstPerson.Element("age");
+            Assert.NotNull(nameElement); 
+            Assert.NotNull(ageElement); 
+
+            nameElement.Value = "Елена";
+            ageElement.Value = "41";
+
+            document.Save(savePath);
+
+            Assert.True(File.Exists(savePath));
+
+            XDocument savedDocument = XDocument.Load(savePath);
+
+            Assert.NotNull(savedDocument.Root);
+
+            var savedPeople = savedDocument.Root.Elements("person");
+            Assert.NotEmpty(savedPeople); 
+
+            var savedFirstPerson = savedPeople.First();
+            Assert.NotNull(savedFirstPerson); 
+
+            var savedNameElement = savedFirstPerson.Element("name");
+            var savedAgeElement = savedFirstPerson.Element("age");
+            Assert.NotNull(savedNameElement); 
+            Assert.NotNull(savedAgeElement);
+
+            Assert.Equal("Елена", savedNameElement.Value);
+            Assert.Equal("41", savedAgeElement.Value);
+
+            XDocument originalDocument = XDocument.Load(_testFilePath);
+            Assert.NotNull(originalDocument.Root);
+
+            var originalPeople = originalDocument.Root.Elements("person");
+            Assert.NotEmpty(originalPeople);
+
+            var originalFirstPerson = originalPeople.First();
+            Assert.NotNull(originalFirstPerson); 
+
+            var originalNameElement = originalFirstPerson.Element("name");
+            Assert.NotNull(originalNameElement); 
+
+            Assert.Equal("Татьяна", originalNameElement.Value);
+        }
+    }
+}
