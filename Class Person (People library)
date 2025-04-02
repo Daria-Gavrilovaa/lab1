@@ -1,0 +1,57 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace People
+{
+    public class Person
+    {
+        public string Name { get; set; }
+
+        private string gender;
+        public string Gender
+        {
+            get { return gender; }
+            set
+            {
+                if (value != "Мужской" && value != "Женский")
+                    throw new Exception("Некорректно указан пол");
+                gender = value;
+            }
+        }
+
+        private int age;
+        public int Age
+        {
+            get { return age; }
+            set
+            {
+                if (value < 0 || value > 122)
+                    throw new Exception("Некорректно указан возраст");
+                age = value;
+            }
+        }
+
+        private string status;
+        public string Status
+        {
+            get { return status; }
+            set
+            {
+                if (value != "Студент" && value != "Рабочий" && value != "Служащий" && value != "Безработный")
+                    throw new Exception("Некорректно указан статус");
+                status = value;
+            }
+        }
+
+        public Person(string name, string gender, int age, string status) 
+        {
+            Name = name;
+            Gender = gender;
+            Age = age;
+            Status = status;
+        }
+    }
+}
