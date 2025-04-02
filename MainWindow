@@ -1,0 +1,106 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using People;
+
+namespace XMLApp
+{
+    /// <summary>
+    /// Логика взаимодействия для MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        private Actions actions;
+        private List<Person> persons;
+        private int selectedIndex = -1;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            actions = new Actions();
+            persons = new List<Person>();
+        }
+
+        /// <summary>
+        /// Кнопка для чтения данных
+        /// </summary>
+        private void ReadButton(object sender, RoutedEventArgs e)
+        {
+            persons = actions.ReadXML();
+            MessageBox.Show($"Загружено {persons.Count} человек");
+        }
+
+
+        /// <summary>
+        /// Кнопка для отображения данных
+        /// </summary>
+        private void LoadButton(object sender, RoutedEventArgs e)
+        {
+            ListBox.Items.Clear();
+            foreach (var person in persons)
+            {
+                string info = $"Имя: {person.Name} \nПол: {person.Gender}\nВозраст: {person.Age}\nСтатус: {person.Status}";
+                ListBox.Items.Add(info);
+            }
+        }
+
+        /// <summary>
+        /// Изменение информации
+        /// </summary>
+        private void List_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ListBox.SelectedIndex >= 0 && ListBox.SelectedIndex < persons.Count)
+            {
+                selectedIndex = ListBox.SelectedIndex;
+                Person selectedPerson = persons[selectedIndex];
+
+                NameBox.Text = selectedPerson.Name;
+                GenderBox.Text = selectedPerson.Gender;
+                AgeBox.Text = selectedPerson.Age.ToString();
+                StatusBox.Text = selectedPerson.Status;
+            }
+        }
+
+        /// <summary>
+        /// Сохранение изменений
+        /// </summary>
+        private void SaveButton(object sender, RoutedEventArgs e)
+        {
+            if (selectedIndex >= 0 && selectedIndex < persons.Count)
+            {
+                try
+                {
+                    persons[selectedIndex].Name = NameBox.Text;
+                    persons[selectedIndex].Gender = GenderBox.Text;
+                    persons[selectedIndex].Age = int.Parse(AgeBox.Text);
+                    persons[selectedIndex].Status = StatusBox.Text;
+
+                    actions.SaveXML(persons);
+                    MessageBox.Show("Данные успешно сохранены!");
+
+                    LoadButton(null, null);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка: {ex.Message}");
+                }
+            }
+            else
+            {
+                MessageBox.Show("Вы не выбрали человека");
+            }
+        }
+    }
+}
+        
